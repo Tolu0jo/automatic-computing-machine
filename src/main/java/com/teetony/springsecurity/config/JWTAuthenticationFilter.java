@@ -2,10 +2,12 @@ package com.teetony.springsecurity.config;
 
 import com.teetony.springsecurity.service.JWTService;
 import com.teetony.springsecurity.service.UserService;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -29,7 +31,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
      final String authHeader = request.getHeader("Authorization");
      final String jwt;
      final String userEmail;
@@ -41,16 +44,16 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
       jwt=authHeader.substring(7);
      userEmail= jwtService.extractUsername(jwt);
 
-     //
+
      if (!StringUtils.isEmpty(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null){
          UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
      if(jwtService.isTokenValid(jwt, userDetails)){
          SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-
          UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                  userDetails,null,userDetails.getAuthorities());
          token.setDetails( new WebAuthenticationDetailsSource().buildDetails(request));
          securityContext.setAuthentication(token);
+         SecurityContextHolder.setContext(securityContext);
      }
      }
      filterChain.doFilter(request,response);

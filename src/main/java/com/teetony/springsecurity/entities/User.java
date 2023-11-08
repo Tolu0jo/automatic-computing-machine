@@ -2,6 +2,7 @@ package com.teetony.springsecurity.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,8 +20,10 @@ public class User implements UserDetails {
 
     private String firstname;
 
+
     private String lastname;
 
+    @Column(name = "email", unique = true)
     private String email;
 
     private String password;
